@@ -12,6 +12,8 @@ You can register Clients and give them Client or Admin roles, only Admins can de
 1. Clone the repository.
 2. Run a IBM MQ container
 ```shell
+docker pull icr.io/ibm-messaging/mq:latest
+docker volume create qm1data
 docker run --env LICENSE=accept --env MQ_QMGR_NAME=QM1 --publish 1414:1414 --publish 9443:9443 --detach ibmcom/mq
 ```
 3. Run the docker-compose file
