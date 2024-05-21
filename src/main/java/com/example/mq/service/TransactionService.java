@@ -7,6 +7,8 @@ import com.example.mq.repository.TransactionRepository;
 import com.example.mq.service.exceptions.EntityNotFound;
 import com.example.mq.service.exceptions.TransferAmount;
 import com.example.mq.service.exceptions.WrongArgument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.List;
  */
 @Service
 public class TransactionService {
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     @Autowired
     private JmsTemplate jmsTemplate;
@@ -40,6 +43,7 @@ public class TransactionService {
      */
 
     public List<Transaction> getTransactionByAccountNumber(Integer accountNumber) {
+        logger.info("Getting transactions of account number" + accountNumber);
         return transactionRepository.findAllByFromAccountNumber(accountNumber);
     }
 
@@ -48,6 +52,7 @@ public class TransactionService {
      * @param obj Transaction object to send
      */
     public void enqueueTransaction(Transaction obj)  {
+        logger.info("Enqueuing transaction from account number {} to account number {}", obj.getFromAccountNumber(), obj.getToAccountNumber());
         if(clientRepository.getClientByAccountNumber(obj.getToAccountNumber()) == null){
             throw new EntityNotFound("Receiver account number does not exist");
         }
@@ -64,9 +69,12 @@ public class TransactionService {
         }
         obj.setDate(LocalDateTime.now());
         obj.setStatus("PROCESSING");
+
         transactionRepository.save(obj);
+        logger.info("Transaction saved to database");
 
         jmsTemplate.convertAndSend("DEV.QUEUE.1", obj);
+        logger.info("Transaction sent to queue");
     }
 
     /**

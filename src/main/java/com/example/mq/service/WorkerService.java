@@ -4,6 +4,8 @@ import com.example.mq.model.Client;
 import com.example.mq.model.Transaction;
 import com.example.mq.repository.ClientRepository;
 import com.example.mq.repository.TransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,11 @@ import org.springframework.stereotype.Service;
  * - @Autowired: Marks a constructor, field, setter method, or config method as to be autowired by Spring's dependency injection facilities.
  * - @JmsListener: Listener to a queue.
  */
+
 @Service
 public class WorkerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkerService.class);
     @Autowired
     private ClientRepository clientRepository;
 
@@ -29,11 +34,14 @@ public class WorkerService {
      */
     @JmsListener(destination = "DEV.QUEUE.1")
     public void processTransaction(Transaction transaction) {
+        logger.info("Processing transaction from account number {} to account number {}", transaction.getFromAccountNumber(), transaction.getToAccountNumber());
         try{
+            logger.info("Processing transaction");
             Thread.sleep(5000);
         }catch (InterruptedException e){
             e.printStackTrace();
         }
+
         Client sender = clientRepository.getClientByAccountNumber(transaction.getFromAccountNumber());
         Client receiver = clientRepository.getClientByAccountNumber(transaction.getToAccountNumber());
 
@@ -43,6 +51,7 @@ public class WorkerService {
         clientRepository.save(sender);
         clientRepository.save(receiver);
 
+        logger.info("Transaction processed");
         transaction.setStatus("COMPLETED");
         transactionRepository.save(transaction);
     }
