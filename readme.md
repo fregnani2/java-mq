@@ -1,4 +1,3 @@
-# Transaction API
 ## Overview
 Transaction API integrated with IBM MQ.\
 It uses Spring Boot, Spring Data JPA,Spring Security, JMS, H2 database, Lombok and IBM MQ.\
