@@ -2,7 +2,9 @@ package com.example.mq.service;
 
 import com.example.mq.model.Client;
 import com.example.mq.model.Transaction;
+import com.example.mq.repository.ClientRepository;
 import com.example.mq.repository.TransactionRepository;
+import com.example.mq.service.exceptions.EntityNotFound;
 import com.example.mq.service.exceptions.TransferAmount;
 import com.example.mq.service.exceptions.WrongArgument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,8 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private ClientRepository clientRepository;
 
     /**
      * Method to get all transactions by account number
@@ -44,8 +48,10 @@ public class TransactionService {
      * @param obj Transaction object to send
      */
     public void enqueueTransaction(Transaction obj)  {
+        if(clientRepository.getClientByAccountNumber(obj.getToAccountNumber()) == null){
+            throw new EntityNotFound("Receiver account number does not exist");
+        }
         Client sender = clientService.getClientByAccountNumber(obj.getFromAccountNumber());
-        Client receiver = clientService.getClientByAccountNumber(obj.getToAccountNumber());
 
         if (obj.getAmount() <= 0) {
             throw new TransferAmount("Minimum amount to transfer is 1");
