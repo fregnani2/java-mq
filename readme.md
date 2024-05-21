@@ -1,7 +1,7 @@
 # Transaction API
 ## Overview
-Transaction API integrated with IBM MQ.
-It uses Spring Boot, Spring Data JPA,Spring Security, JMS, H2 database, Lombok and IBM MQ.
+Transaction API integrated with IBM MQ.\
+It uses Spring Boot, Spring Data JPA,Spring Security, JMS, H2 database, Lombok and IBM MQ.\
 You can register Clients and give them Client or Admin roles, only Admins can delete a client and get a list of all clients.
 
 
